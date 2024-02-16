@@ -123,7 +123,7 @@ torch::Tensor searchsorted_cpu_wrapper(
       }
       });
 
-    return res.clone();
+    return res;
   }
 
  static auto registry =

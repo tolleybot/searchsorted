@@ -4,7 +4,7 @@
 //#include <torch/extension.h>
 #include <torch/script.h>
 
-void searchsorted_cuda(
+torch::Tensor searchsorted_cuda(
     torch::Tensor a,
     torch::Tensor v,
     bool side_left);

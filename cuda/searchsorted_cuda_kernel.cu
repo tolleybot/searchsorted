@@ -108,7 +108,7 @@ void searchsorted_kernel(
 }
 
 
-void searchsorted_cuda(
+torch::Tensor searchsorted_cuda(
   torch::Tensor a,
   torch::Tensor v,
   bool side_left){
@@ -122,7 +122,7 @@ void searchsorted_cuda(
       auto nrow_res = std::max(nrow_a, nrow_v);
 
       // Allocate the result tensor. Assuming the result is a 2D tensor of int64_t.
-      auto options = torch::TensorOptions().dtype(torch::kInt64);
+      auto options = torch::TensorOptions().dtype(torch::kInt64).device(a.device());
       torch::Tensor res = torch::empty({nrow_res, ncol_v}, options);
 
       // prepare the kernel configuration
@@ -142,6 +142,11 @@ void searchsorted_cuda(
           v.data_ptr<scalar_t>(),
           nrow_res, nrow_a, nrow_v, ncol_a, ncol_v, side_left);
       }));
+
+      // Ensure the kernel is done executing and data is synced back
+      cudaDeviceSynchronize();
+
+      return res;
 
   }
 
