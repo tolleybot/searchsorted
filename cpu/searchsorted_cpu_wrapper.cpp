@@ -81,12 +81,9 @@ int64_t binary_search(scalar_t*a, int64_t row, scalar_t val, int64_t ncol, bool 
 
 torch::Tensor searchsorted_cpu_wrapper(
     torch::Tensor a,
-    torch::Tensor v,
-    torch::Tensor res,
+    torch::Tensor v,  
     torch::Tensor side_left)
 {
-
-  #if 0
 
   bool side_left_bool = side_left.item<bool>();
 
@@ -96,10 +93,11 @@ torch::Tensor searchsorted_cpu_wrapper(
   auto nrow_v = v.size(/*dim=*/0);
   auto ncol_v = v.size(/*dim=*/1);
 
-  auto nrow_res = fmax(nrow_a, nrow_v);
+  auto nrow_res = fmax(nrow_a, nrow_v); 
 
-  //auto acc_v = v.accessor<float, 2>();
-  //auto acc_res = res.accessor<float, 2>();
+  // Allocate the result tensor. Assuming the result is a 2D tensor of int64_t.
+  auto options = torch::TensorOptions().dtype(torch::kInt64);
+  torch::Tensor res = torch::empty({nrow_res, ncol_v}, options);
 
   AT_DISPATCH_ALL_TYPES(a.scalar_type(), "searchsorted cpu", [&] {
 
@@ -123,7 +121,7 @@ torch::Tensor searchsorted_cpu_wrapper(
           }
       }
       });
-  #endif
+
     return res.clone();
   }
 

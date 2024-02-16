@@ -110,7 +110,6 @@ void searchsorted_kernel(
 void searchsorted_cuda(
   torch::Tensor a,
   torch::Tensor v,
-  torch::Tensor res,
   bool side_left){
 
       // Get the dimensions
@@ -120,6 +119,10 @@ void searchsorted_cuda(
       auto ncol_v = v.size(/*dim=*/1);
 
       auto nrow_res = fmax(double(nrow_a), double(nrow_v));
+
+      // Allocate the result tensor. Assuming the result is a 2D tensor of int64_t.
+      auto options = torch::TensorOptions().dtype(torch::kInt64);
+      torch::Tensor res = torch::empty({nrow_res, ncol_v}, options);
 
       // prepare the kernel configuration
       dim3 threads(ncol_v, nrow_res);

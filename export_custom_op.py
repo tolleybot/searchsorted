@@ -63,7 +63,7 @@ print("GPU is not available. Using CPU.")
 #     "/src/searchsorted/src/build/lib.linux-x86_64-3.10/custom_group_norm.cpython-310-x86_64-linux-gnu.so")     
 
 torch.ops.load_library(
-    "/src/searchsorted/src/build/lib.linux-x86_64-3.10/searchsorted.cpython-310-x86_64-linux-gnu.so")     
+    "searchsorted_cpu.cpython-310-x86_64-linux-gnu.so")     
 
 register_custom_op()
 export_custom_op()

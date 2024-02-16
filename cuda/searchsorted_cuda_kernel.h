@@ -7,7 +7,6 @@
 void searchsorted_cuda(
     torch::Tensor a,
     torch::Tensor v,
-    torch::Tensor res,
     bool side_left);
 
 #endif

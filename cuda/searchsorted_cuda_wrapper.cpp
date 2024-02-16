@@ -6,13 +6,13 @@
 #define CHECK_CONTIGUOUS(x) AT_ASSERTM(x.is_contiguous(), #x " must be contiguous")
 #define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
 
-void searchsorted_cuda_wrapper(torch::Tensor a, torch::Tensor v, torch::Tensor res, bool side_left)
+void searchsorted_cuda_wrapper(torch::Tensor a, torch::Tensor v, bool side_left)
 {
   CHECK_INPUT(a);
   CHECK_INPUT(v);
   CHECK_INPUT(res);
 
-  searchsorted_cuda(a, v, res, side_left);
+  searchsorted_cuda(a, v, side_left);
 }
 
   static auto registry =
