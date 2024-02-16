@@ -1,5 +1,5 @@
-#include "searchsorted_cpu_wrapper.h"
 #include <stdio.h>
+#include <torch/script.h>
 
 template<typename scalar_t>
 int eval(scalar_t val, scalar_t *a, int64_t row, int64_t col, int64_t ncol, bool side_left)
@@ -79,12 +79,16 @@ int64_t binary_search(scalar_t*a, int64_t row, scalar_t val, int64_t ncol, bool 
   return -1;
 }
 
-void searchsorted_cpu_wrapper(
-    at::Tensor a,
-    at::Tensor v,
-    at::Tensor res,
-    bool side_left)
+torch::Tensor searchsorted_cpu_wrapper(
+    torch::Tensor a,
+    torch::Tensor v,
+    torch::Tensor res,
+    torch::Tensor side_left)
 {
+
+  #if 0
+
+  bool side_left_bool = side_left.item<bool>();
 
   // Get the dimensions
   auto nrow_a = a.size(/*dim=*/0);
@@ -115,12 +119,15 @@ void searchsorted_cpu_wrapper(
               int64_t idx_in_res = row * ncol_v + col;
 
               // apply binary search
-              res_data[idx_in_res] = (binary_search(a_data, row_in_a, v_data[idx_in_v], ncol_a, side_left) + 1);
+              res_data[idx_in_res] = (binary_search(a_data, row_in_a, v_data[idx_in_v], ncol_a, side_left_bool) + 1);
           }
       }
       });
+  #endif
+    return res.clone();
   }
 
-  PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-    m.def("searchsorted_cpu_wrapper", &searchsorted_cpu_wrapper, "searchsorted (CPU)");
-  }
+ static auto registry =
+  torch::RegisterOperators("mynamespace::searchsorted", &searchsorted_cpu_wrapper);
+
+

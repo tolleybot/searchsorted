@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
-from torch.utils.cpp_extension import BuildExtension, CUDA_HOME
-from torch.utils.cpp_extension import CppExtension, CUDAExtension
+from torch.utils.cpp_extension import CUDA_HOME
+from torch.utils.cpp_extension import CppExtension, CUDAExtension, BuildExtension
 
 # In any case, include the CPU version
 modules = [
@@ -18,26 +18,12 @@ if CUDA_HOME:
                        include_dirs=['/src/cuda/'])
     )
 
-tests_require = [
-    'pytest',
-]
 
-# Now proceed to setup
-setup(
-    name='searchsorted',
-    version='1.1',
-    description='A searchsorted implementation for pytorch',
-    keywords='searchsorted',
-    author='Antoine Liutkus',
-    author_email='antoine.liutkus@inria.fr',
-    packages=find_packages(where='src'),
-    package_dir={"": "src"},
-    ext_modules=modules,
-    tests_require=tests_require,
-    extras_require={
-        'test': tests_require,
-    },
-    cmdclass={
-        'build_ext': BuildExtension
-    }
-)
+
+setup(name='searchsorted',
+      ext_modules=modules,
+      version='0.1.0',
+      license='Apache License v2.0',
+      package_dir={"": "src"},
+      cmdclass={'build_ext': BuildExtension})
+

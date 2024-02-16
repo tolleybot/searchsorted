@@ -108,9 +108,9 @@ void searchsorted_kernel(
 
 
 void searchsorted_cuda(
-  at::Tensor a,
-  at::Tensor v,
-  at::Tensor res,
+  torch::Tensor a,
+  torch::Tensor v,
+  torch::Tensor res,
   bool side_left){
 
       // Get the dimensions
@@ -140,3 +140,4 @@ void searchsorted_cuda(
       }));
 
   }
+
