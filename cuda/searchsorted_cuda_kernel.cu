@@ -1,4 +1,5 @@
 #include "searchsorted_cuda_kernel.h"
+#include <algorithm> 
 
 template <typename scalar_t>
 __device__
@@ -118,7 +119,7 @@ void searchsorted_cuda(
       auto ncol_a = a.size(/*dim=*/1);
       auto ncol_v = v.size(/*dim=*/1);
 
-      auto nrow_res = fmax(double(nrow_a), double(nrow_v));
+      auto nrow_res = std::max(nrow_a, nrow_v);
 
       // Allocate the result tensor. Assuming the result is a 2D tensor of int64_t.
       auto options = torch::TensorOptions().dtype(torch::kInt64);

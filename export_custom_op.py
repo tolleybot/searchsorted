@@ -12,14 +12,13 @@ def test():
     a = torch.randn(nrows_a, nsorted_values, device='cpu')
     a = torch.sort(a, dim=1)[0]
     v = torch.randn(nrows_v, nvalues, device=a.device)
-    side = torch.tensor([0], dtype=torch.int64) #  'right'
-    out = torch.empty((max(a.shape[0], v.shape[0]), v.shape[1]), device=v.device, dtype=torch.int64)
-    torch.ops.mynamespace.searchsorted(a, v, out, side)
+    side = torch.tensor([0], dtype=torch.int64) #  'right'   
+    out = torch.ops.mynamespace.searchsorted(a, v, side)
     print(out)
      
 def register_custom_op():
-    def mysearchsorted(g,  a, v, out, left_side):
-        return g.op("mydomain::testsearchsorted", a, v, out, left_side)
+    def mysearchsorted(g,  a, v, side_left):
+        return g.op("mydomain::testsearchsorted", a, v, side_left)
 
     from torch.onnx import register_custom_op_symbolic
                                 
@@ -27,25 +26,23 @@ def register_custom_op():
 
 def export_custom_op():
     class CustomModel(torch.nn.Module):
-        def forward(self, a, v, out, left_side):
-            return torch.ops.mynamespace.searchsorted(a, v, out, left_side)                                    
+        def forward(self, a, v, side_left):
+            return torch.ops.mynamespace.searchsorted(a, v, side_left)                                    
 
-    side = torch.tensor([0], dtype=torch.int64) #  'right'
+    side_left = torch.tensor([0], dtype=torch.int64) #  'right'
     # generate a matrix with sorted rows
     a = torch.randn(nrows_a, nsorted_values, device='cpu')
     a = torch.sort(a, dim=1)[0]
     # generate a matrix of values to searchsort
     v = torch.randn(nrows_v, nvalues, device=a.device)
-    result_shape = (max(a.shape[0], v.shape[0]), v.shape[1])
-    output = torch.empty(result_shape, device=v.device, dtype=torch.int64)
 
-    inputs = (a, v, output , side)   
+    inputs = (a, v, side_left)   
 
 
     model_file = './model.onnx'
     torch.onnx.export(CustomModel(), inputs, model_file,
                     opset_version=9,                     
-                    input_names=["a", "v", "out", "left_side"],
+                    input_names=["a", "v", "side_left"],
                     output_names=["Y"],
                     custom_opsets={"mydomain": 1})
 

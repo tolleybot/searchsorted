@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <algorithm> 
 #include <torch/script.h>
 
 template<typename scalar_t>
@@ -93,7 +94,7 @@ torch::Tensor searchsorted_cpu_wrapper(
   auto nrow_v = v.size(/*dim=*/0);
   auto ncol_v = v.size(/*dim=*/1);
 
-  auto nrow_res = fmax(nrow_a, nrow_v); 
+  auto nrow_res = std::max(nrow_a, nrow_v); 
 
   // Allocate the result tensor. Assuming the result is a 2D tensor of int64_t.
   auto options = torch::TensorOptions().dtype(torch::kInt64);

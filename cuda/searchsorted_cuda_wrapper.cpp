@@ -10,7 +10,6 @@ void searchsorted_cuda_wrapper(torch::Tensor a, torch::Tensor v, bool side_left)
 {
   CHECK_INPUT(a);
   CHECK_INPUT(v);
-  CHECK_INPUT(res);
 
   searchsorted_cuda(a, v, side_left);
 }
