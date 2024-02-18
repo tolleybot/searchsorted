@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "core/session/onnxruntime_cxx_api.h"
+#include "onnxruntime_cxx_api.h"
 #include "/onnxruntime/onnxruntime/core/session/custom_ops.h"
 #include <vector>
 
@@ -10,10 +10,14 @@
 struct OrtTensorDimensions : std::vector<int64_t> {
     OrtTensorDimensions(Ort::CustomOpApi ort, const OrtValue* value) {
         OrtTensorTypeAndShapeInfo* info = ort.GetTensorTypeAndShape(value);
-        std::vector<int64_t>::operator=(ort.GetTensorShape(info));
+        size_t dim_count = ort. GetDimensionsCount(info);
+        this->resize(dim_count);
+        ort.GetDimensions(info, this->data(), dim_count);
         ort.ReleaseTensorTypeAndShapeInfo(info);
     }
 };
+
+
 
 template <typename T>
 struct SearchSortedKernel {

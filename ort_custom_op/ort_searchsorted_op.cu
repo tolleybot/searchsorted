@@ -1,6 +1,6 @@
 
 #include "ort_searchsorted_op.h"
-
+#include "searchsorted_cuda_kernel.h"
 
 
 // Implementation of the Compute function for SearchSortedKernel
@@ -8,14 +8,14 @@ template <typename T>
 void SearchSortedKernel<T>::Compute(OrtKernelContext* context) {
 
     // Obtain input tensors from the ORT context
-    OrtValue* input_a = ort_.KernelContext_GetInput(context, 0);
-    OrtValue* input_v = ort_.KernelContext_GetInput(context, 1);
-    OrtValue* input_side_left = ort_.KernelContext_GetInput(context, 2);
+    const OrtValue* input_a = ort_.KernelContext_GetInput(context, 0);
+    const OrtValue* input_v = ort_.KernelContext_GetInput(context, 1);
+    const OrtValue* input_side_left = ort_.KernelContext_GetInput(context, 2);
 
     // Convert ORT tensors to raw pointers for CUDA kernel
-    auto* a_data = reinterpret_cast<float*>(ort_.GetTensorMutableData<float>(input_a));
-    auto* v_data = reinterpret_cast<float*>(ort_.GetTensorMutableData<float>(input_v));
-    auto* side_left_data = reinterpret_cast<bool*>(ort_.GetTensorMutableData<bool>(input_side_left));
+    T* a_data = reinterpret_cast<T*>(ort_.GetTensorMutableData<T>(input_a));
+    T* v_data = reinterpret_cast<T*>(ort_.GetTensorMutableData<T>(input_v));
+    T* side_left_data = reinterpret_cast<T*>(ort_.GetTensorMutableData<T>(input_side_left));
 
     // Assuming you have already obtained the dimensions similar to your PyTorch implementation
     // For simplicity, let's assume nrow_a, nrow_v, ncol_a, and ncol_v are already defined
