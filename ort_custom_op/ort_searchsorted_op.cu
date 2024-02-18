@@ -17,9 +17,6 @@ void SearchSortedKernel<T>::Compute(OrtKernelContext* context) {
     T* v_data = reinterpret_cast<T*>(ort_.GetTensorMutableData<T>(input_v));
     T* side_left_data = reinterpret_cast<T*>(ort_.GetTensorMutableData<T>(input_side_left));
 
-    // Assuming you have already obtained the dimensions similar to your PyTorch implementation
-    // For simplicity, let's assume nrow_a, nrow_v, ncol_a, and ncol_v are already defined
-
     // Prepare the output tensor
     OrtTensorDimensions dimensions_a(ort_, input_a);
     OrtTensorDimensions dimensions_v(ort_, input_v);

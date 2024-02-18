@@ -23,12 +23,9 @@ template <typename T>
 struct SearchSortedKernel {
 private:
     Ort::CustomOpApi ort_;
-    int64_t side_; // Assuming 'side' is a simple attribute controlling the behavior of searchsorted
-
 public:
     SearchSortedKernel(Ort::CustomOpApi ort, const OrtKernelInfo* info) : ort_(ort) {
-        // Assuming 'side' is provided as an attribute. If it's an input tensor, you'll need to handle it differently
-        side_ = ort_.KernelInfoGetAttribute<int64_t>(info, "side");
+
     }
 
     void Compute(OrtKernelContext* context);
@@ -39,9 +36,9 @@ struct SearchSortedCustomOp : Ort::CustomOpBase<SearchSortedCustomOp, SearchSort
         return new SearchSortedKernel<float>(api, info);
     }
 
-    const char* GetName() const  { return "SearchSorted"; }
+    const char* GetName() const  { return "mydomain::searchsorted" }
 
-    size_t GetInputTypeCount() const  { return 2; }; // Adjust based on your actual inputs
+    size_t GetInputTypeCount() const  { return 3; }; // Adjust based on your actual inputs
     ONNXTensorElementDataType GetInputType(size_t /*index*/) const  { return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT; };
 
     size_t GetOutputTypeCount() const  { return 1; };
