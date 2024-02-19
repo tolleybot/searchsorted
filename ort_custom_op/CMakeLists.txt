@@ -22,7 +22,7 @@ set(CUDA_HEADER_FILES "${TORCH_ROOT_SRC}/cuda/searchsorted_cuda_kernel.h")
 
 #set(TEST_SOURCE testsearchsorted.cpp)
 set(HEADER ort_searchsorted_op.h)
-set(SOURCE "")
+set(SOURCE registration.cpp)
 #add_executable(ortsearchsortedop ${SOURCE} ${HEADER} ${TEST_SOURCE})
 # Create a shared library target
 add_library(ortsearchsortedop SHARED ${SOURCE} ${HEADER} ${CUDA_SOURCE_FILES})
