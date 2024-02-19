@@ -7,19 +7,19 @@
 template <typename T>
 void SearchSortedKernel<T>::Compute(OrtKernelContext* context) {
 
-    // Obtain input tensors from the ORT context
-    const OrtValue* input_a = ort_.KernelContext_GetInput(context, 0);
-    const OrtValue* input_v = ort_.KernelContext_GetInput(context, 1);
-    const OrtValue* input_side_left = ort_.KernelContext_GetInput(context, 2);
+    Ort::KernelContext ctx(context);
+    auto v_a = ctx.GetInput(0);
+    auto v_v = ctx.GetInput(1);
+    auto v_side_left = ctx.GetInput(2);   
 
-    // Convert ORT tensors to raw pointers for CUDA kernel
-    T* a_data = reinterpret_cast<T*>(ort_.GetTensorMutableData<T>(input_a));
-    T* v_data = reinterpret_cast<T*>(ort_.GetTensorMutableData<T>(input_v));
-    T* side_left_data = reinterpret_cast<T*>(ort_.GetTensorMutableData<T>(input_side_left));
+    const T* a_data = v_a.GetTensorData<T>();
+    const T* v_data = v_v.GetTensorData<T>();
+    const T* side_left_data = v_side_left.GetTensorData<T>();
 
-    // Prepare the output tensor
-    OrtTensorDimensions dimensions_a(ort_, input_a);
-    OrtTensorDimensions dimensions_v(ort_, input_v);
+    auto dimensions_a = v_a.GetTensorTypeAndShapeInfo().GetShape();
+    auto dimensions_v = v_v.GetTensorTypeAndShapeInfo().GetShape();
+    
+    // Prepare the output tensor    
     auto nrow_a = dimensions_a[0];
     auto ncol_a = dimensions_a[1];
     auto nrow_v = dimensions_v[0];
@@ -27,9 +27,9 @@ void SearchSortedKernel<T>::Compute(OrtKernelContext* context) {
     auto nrow_res = std::max(nrow_a, nrow_v);
 
     std::vector<int64_t> output_dims = {nrow_res, ncol_v};
-    OrtValue* output_tensor = ort_.KernelContext_GetOutput(context, 0, output_dims.data(), output_dims.size());
+    auto output_tensor = ctx.GetOutput(0, output_dims);
 
-    auto* output_data = ort_.GetTensorMutableData<int64_t>(output_tensor);
+    int64_t* output_data = output_tensor.GetTensorMutableData<int64_t>();
 
     // Configure kernel dimensions as in PyTorch
     dim3 threads(ncol_v, nrow_res);
@@ -43,8 +43,8 @@ void SearchSortedKernel<T>::Compute(OrtKernelContext* context) {
 
     // Launch the CUDA kernel
     bool side_left = *side_left_data; // Simplification: assuming side_left is a single bool value
-    searchsorted_kernel<<<blocks, threads>>>(output_data, a_data, v_data, nrow_res, nrow_a, nrow_v, ncol_a, ncol_v, side_left);
+    searchsorted_kernel_float(output_data, (float*)a_data, (float*)v_data, nrow_res, nrow_a, nrow_v, ncol_a, ncol_v, side_left, blocks, threads);
 
-    // Synchronize after kernel execution
-    cudaDeviceSynchronize();
 }
+
+template class SearchSortedKernel<float>;

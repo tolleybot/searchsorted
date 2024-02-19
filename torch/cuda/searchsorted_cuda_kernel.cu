@@ -105,3 +105,15 @@ void searchsorted_kernel(
     // apply binary search
     res[idx_in_res] = binary_search(a, row_in_a, v[idx_in_v], ncol_a, side_left)+1;
 }
+
+// Explicit instantiation of the wrapper function for float
+void searchsorted_kernel_float(
+  int64_t *res,
+  float *a,
+  float *v,
+  int64_t nrow_res, int64_t nrow_a, int64_t nrow_v, int64_t ncol_a, int64_t ncol_v, bool side_left,
+  dim3 blocks, dim3 threads) {
+    // Directly invoke the kernel with float type
+    searchsorted_kernel<float><<<blocks, threads>>>(res, a, v, nrow_res, nrow_a, nrow_v, ncol_a, ncol_v, side_left);
+    cudaDeviceSynchronize(); // Consider checking for CUDA errors
+}

@@ -1,5 +1,6 @@
 import os
 import onnxruntime as ort
+import numpy as np
 
 # Construct the path to your custom operator library
 # Assuming the current script is in the same directory as the "build" folder
@@ -11,12 +12,24 @@ so = ort.SessionOptions()
 # Register your custom operator library with ONNX Runtime
 so.register_custom_ops_library(library_path)
 
+if not "CUDAExecutionProvider" in ort.get_available_providers():
+    print("CUDAExecutionProvider not available, using CPU.")
+
 # Load your ONNX model that uses the custom operator
 # Replace 'path_to_your_model.onnx' with the actual path to your ONNX model file
-sess = ort.InferenceSession("path_to_your_model.onnx", so)
+model_path = "model.onnx"
+sess = ort.InferenceSession(model_path, so, providers=["CUDAExecutionProvider"])
 
-# Prepare your input data according to the model's requirements
-input_data = {"input_name": ...}  # Replace 'input_name' and ... with actual values
+
+# make some dummy data
+a_dummy = np.random.randn(50000, 300).astype(
+    np.float32
+)  # Adjust dtype as per your model's requirement
+v_dummy = np.random.randn(50000, 1000).astype(np.float32)
+side_left_dummy = np.array([0], dtype=np.int64)  # Example value
+
+# Matching input names from your model
+input_data = {"a": a_dummy, "v": v_dummy, "side_left": side_left_dummy}
 
 # Run inference
 outputs = sess.run(None, input_data)
