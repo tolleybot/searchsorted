@@ -1,8 +1,10 @@
 #include "ort_searchsorted_op.h"
+#include "registration.h"
 #include "core/common/common.h"
 #include <vector>
 #include <cmath>
 #include <mutex>
+#include <iostream>
 
 static const char* c_OpDomain = "mydomain";
 
@@ -14,8 +16,10 @@ static void AddOrtCustomOpDomainToContainer(Ort::CustomOpDomain&& domain) {
   ort_custom_op_domain_container.push_back(std::move(domain));
 }
 
-extern "C" OrtStatus* ORT_API_CALL RegisterCustomOps(OrtSessionOptions* options, const OrtApiBase* api) {
+OrtStatus* ORT_API_CALL RegisterCustomOps(OrtSessionOptions* options, const OrtApiBase* api) {
   Ort::Global<void>::api_ = api->GetApi(ORT_API_VERSION);
+
+  std::cout << "************** RegisterCustomOps" << std::endl;
 
   static const SearchSortedCustomOp c_SearchSortedCustomOp;
 
@@ -33,7 +37,12 @@ extern "C" OrtStatus* ORT_API_CALL RegisterCustomOps(OrtSessionOptions* options,
     ORT_HANDLE_EXCEPTION([&]() {
       Ort::Status status{e};
       result = status.release();
+      std::cout << "****** Registration failed: " << std::endl;
     });
   }
   return result;
+}
+
+OrtStatus* ORT_API_CALL RegisterCustomOpsAltName(OrtSessionOptions* options, const OrtApiBase* api) {
+  return RegisterCustomOps(options, api);
 }

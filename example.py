@@ -8,6 +8,7 @@ library_path = os.path.join(os.getcwd(), "build", "libortsearchsortedop.so")
 
 # Initialize session options
 so = ort.SessionOptions()
+so.log_severity_level = 0  # Enable verbose logging
 
 # Register your custom operator library with ONNX Runtime
 so.register_custom_ops_library(library_path)
@@ -17,7 +18,7 @@ if not "CUDAExecutionProvider" in ort.get_available_providers():
 
 # Load your ONNX model that uses the custom operator
 # Replace 'path_to_your_model.onnx' with the actual path to your ONNX model file
-model_path = "model.onnx"
+model_path = "/src/model.onnx"
 sess = ort.InferenceSession(model_path, so, providers=["CUDAExecutionProvider"])
 
 
