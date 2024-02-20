@@ -18,16 +18,15 @@ if not "CUDAExecutionProvider" in ort.get_available_providers():
 
 # Load your ONNX model that uses the custom operator
 # Replace 'path_to_your_model.onnx' with the actual path to your ONNX model file
-model_path = "/src/model.onnx"
+model_path = "searchsorted_custom_op.onnx"
 sess = ort.InferenceSession(model_path, so, providers=["CUDAExecutionProvider"])
-
 
 # make some dummy data
 a_dummy = np.random.randn(50000, 300).astype(
     np.float32
 )  # Adjust dtype as per your model's requirement
 v_dummy = np.random.randn(50000, 1000).astype(np.float32)
-side_left_dummy = np.array([0], dtype=np.int64)  # Example value
+side_left_dummy = np.array([True], dtype=np.bool_)  # Example value
 
 # Matching input names from your model
 input_data = {"a": a_dummy, "v": v_dummy, "side_left": side_left_dummy}

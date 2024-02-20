@@ -35,13 +35,23 @@ struct SearchSortedCustomOp : Ort::CustomOpBase<SearchSortedCustomOp, SearchSort
    // Assuming CreateKernel matches the expected signature from the CustomOpBase setup
     void* CreateKernel(const Ort::CustomOpApi api, const OrtKernelInfo* info) const {
         // Pass the API and info to your kernel's constructor, if needed
-        return new SearchSortedKernel<float>(api, info);
+        return new SearchSortedKernel<float>(api, info);   
     }
 
-    const char* GetName() const { return "searchsorted"; }
+    const char* GetName() const { return "SearchSortedOp"; }
 
     size_t GetInputTypeCount() const { return 3; } // Adjust based on your actual inputs
-    ONNXTensorElementDataType GetInputType(size_t /*index*/) const { return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT; };
+    ONNXTensorElementDataType GetInputType(size_t index) const {
+        switch (index) {
+        case 0: // First input: float
+        case 1: // Second input: float
+            return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
+        case 2: // Third input: bool
+            return ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL;
+        default:
+            throw std::runtime_error("Invalid input index");
+        }
+    };
 
     size_t GetOutputTypeCount() const { return 1; };
     ONNXTensorElementDataType GetOutputType(size_t /*index*/) const { return ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64; }; // Adjust if needed

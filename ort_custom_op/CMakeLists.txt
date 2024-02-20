@@ -6,6 +6,18 @@ enable_language(CUDA)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
+# Find CUDA
+find_package(CUDA)
+
+# Check if CUDA was found
+if(CUDA_FOUND)
+  add_definitions(-DUSE_CUDA)
+  enable_language(CUDA)
+  # ... set up CUDA include directories, libraries, etc.
+else()
+  message(STATUS "CUDA not found")
+endif()
+
 find_package(onnxruntime)
 
 # Find the Microsoft GSL package
