@@ -43,7 +43,7 @@ a_dummy = np.random.randn(10, 10).astype(
 )  # Adjust dtype as per your model's requirement
 a_dummy = np.sort(a_dummy, axis=1)
 
-v_dummy = np.random.randn(10, 1).astype(np.float32)
+v_dummy = np.random.randn(10, 30).astype(np.float32)
 side_left_dummy = np.array([True], dtype=np.bool_)  # Example value
 
 print("Input a sorted: ", a_dummy)
