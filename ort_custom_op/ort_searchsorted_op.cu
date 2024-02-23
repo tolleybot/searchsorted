@@ -1,31 +1,6 @@
 
 #include "ort_searchsorted_op.h"
 #include "searchsorted_cuda_kernel.h"
-#include <iostream>
-
-const int MAX_THREADS_PER_BLOCK = 1024;
-
-
-__global__
-void test_kernel(int64_t *res, int64_t nrow_res, int64_t ncol_v) {
-    // Calculate global row and column indices for the current thread
-    int64_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    int64_t col = blockIdx.x * blockDim.x + threadIdx.x;
-
-    // Check whether we are within the bounds to be computed
-    if (row < nrow_res && col < ncol_v) {
-        // Write a dummy value to the result tensor
-        // For example, just combining row and column indices
-        res[row * ncol_v + col] = row * 100 + col; // Example dummy operation
-    }
-}
-
-__global__ void supersimple_kernel(/*int64_t *res*/) {
-    if (threadIdx.x == 0 && blockIdx.x == 0) {
-        //res[0] = 12345;
-    }
-}
-
 
 
 // Implementation of the Compute function for SearchSortedKernel
