@@ -1,0 +1,106 @@
+FROM tolleybot/cuda
+
+WORKDIR /usr/src/app
+
+RUN apt-get update
+
+# Avoid timezone prompt
+ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install software-properties-common to add PPAs
+RUN apt-get update && \
+    apt-get install -y software-properties-common
+
+# add any PPA's here
+
+# Install build essentials and git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https \
+    autoconf \
+    curl \
+    file \
+    gcc \
+    g++ \
+    gdb \
+    git \
+    graphviz \
+    libboost-chrono-dev \
+    libboost-date-time-dev \
+    libboost-filesystem-dev \
+    libboost-log-dev \
+    libboost-program-options-dev \
+    libboost-regex-dev \
+    libboost-system-dev \
+    libboost-thread-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libwayland-dev \
+    libwayland-egl1-mesa \
+    libwayland-server0 \
+    libgles2-mesa-dev \
+    libxkbcommon-dev \
+    libxkbcommon-x11-dev \
+    make \
+    ninja-build \
+    rsync \
+    python3-dev \
+    software-properties-common \
+    tree \
+    valgrind \
+    vim \
+    weston \
+    wget \      
+    cmake \
+    protobuf-compiler \
+    libprotobuf-dev \
+    build-essential \    
+    gnupg \
+    lsb-release \
+    curl \
+    unzip \
+    zip \
+    tar \
+    pkg-config \
+    autoconf \
+    automake \
+    autoconf-archive \
+    && rm -rf /var/lib/apt/lists
+
+# # Install cmake
+# ARG CMAKE_VERSION=3.26
+# ARG CMAKE_FULL_VERSION=3.26.1
+# RUN curl https://cmake.org/files/v${CMAKE_VERSION}/cmake-${CMAKE_FULL_VERSION}-linux-x86_64.tar.gz | tar xzvf - -C /usr/local
+# ENV PATH="/usr/local/cmake-${CMAKE_FULL_VERSION}-linux-x86_64/bin:${PATH}"
+
+RUN apt-get clean all
+
+# Install ONNX dependencies
+RUN pip3 install numpy protobuf future cython
+# create symbolic link to python3
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Set the environment variable to force the use of system binaries
+ENV VCPKG_FORCE_SYSTEM_BINARIES=1
+ENV ONNX_ML=1
+ENV ONNX_NAMESPACE=onnx
+# Set environment variable for CMake onnx arguments
+ENV CMAKE_ARGS="-DONNX_USE_LITE_PROTO=ON -DONNX_USE_PROTOBUF_SHARED_LIBS=ON -DONNX_BUILD_SHARED_LIBS=ON"
+
+# Clone the vcpkg repository
+RUN git clone https://github.com/Microsoft/vcpkg.git
+
+# Bootstrap vcpkg (compile it from source)
+RUN ./vcpkg/bootstrap-vcpkg.sh
+
+# Integrate vcpkg with the system
+RUN ./vcpkg/vcpkg integrate install
+
+# (Optional) Install any libraries with vcpkg
+# RUN ./vcpkg/vcpkg install <your-library-name>
+
+# Set the VCPKG_ROOT environment variable
+ENV VCPKG_ROOT /usr/src/app/vcpkg
+ENV PATH="/usr/src/app/vcpkg:$PATH"
+
+

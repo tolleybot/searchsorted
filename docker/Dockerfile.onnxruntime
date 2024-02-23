@@ -1,0 +1,39 @@
+FROM tolleybot/onnx
+
+WORKDIR /
+
+# # Install cmake
+ARG CMAKE_VERSION=3.26
+ARG CMAKE_FULL_VERSION=3.26.1
+RUN curl https://cmake.org/files/v${CMAKE_VERSION}/cmake-${CMAKE_FULL_VERSION}-linux-x86_64.tar.gz | tar xzvf - -C /usr/local
+ENV PATH="/usr/local/cmake-${CMAKE_FULL_VERSION}-linux-x86_64/bin:${PATH}"
+
+RUN git clone --recursive https://github.com/microsoft/onnxruntime.git && \
+    cd onnxruntime && \
+    git checkout tags/v1.15.1 -b current_release 
+
+RUN python3 -m pip install numpy pandas scikit-learn matplotlib onnx 
+
+WORKDIR /onnxruntime
+
+RUN ./build.sh \
+--allow_running_as_root \
+--skip_submodule_sync \
+--config RelWithDebInfo \
+--enable_language_interop_ops \
+--build_wheel \
+--update \
+--parallel \
+--build \
+--cmake_extra_defines ONNXRUNTIME_VERSION=$(cat ./VERSION_NUMBER) ONNX_NAMESPACE=onnx \
+--skip_tests \
+--build_shared_lib \
+--use_dnnl \
+--cuda_home /usr/local/cuda \
+--cudnn_home /usr/include \
+--use_cuda
+
+RUN python3 -m pip install --upgrade pip
+RUN pip3 install ./build/Linux/RelWithDebInfo/dist/*.whl
+
+RUN cd ./build/Linux/RelWithDebInfo/ && make install

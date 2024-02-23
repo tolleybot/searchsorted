@@ -1,0 +1,10 @@
+FROM tolleybot/vcpkg
+
+RUN vcpkg install ms-gsl
+RUN vcpkg install onnx
+#RUN vcpkg install onnxruntime-gpu --allow-unsupported
+
+WORKDIR /home/
+
+ENTRYPOINT ["/bin/bash"]
+
