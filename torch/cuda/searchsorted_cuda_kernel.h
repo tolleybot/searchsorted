@@ -43,7 +43,7 @@ __global__ void searchsorted_kernel(
  */
 void searchsorted_kernel_float(
   int64_t *res,
-  float *a,
-  float *v,
+  const float *a,
+  const float *v,
   int64_t nrow_res, int64_t nrow_a, int64_t nrow_v, int64_t ncol_a, int64_t ncol_v, bool side_left,
   dim3 blocks, dim3 threads);

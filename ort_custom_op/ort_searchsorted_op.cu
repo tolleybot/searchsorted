@@ -1,6 +1,31 @@
 
 #include "ort_searchsorted_op.h"
 #include "searchsorted_cuda_kernel.h"
+#include <iostream>
+
+const int MAX_THREADS_PER_BLOCK = 1024;
+
+
+__global__
+void test_kernel(int64_t *res, int64_t nrow_res, int64_t ncol_v) {
+    // Calculate global row and column indices for the current thread
+    int64_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    int64_t col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Check whether we are within the bounds to be computed
+    if (row < nrow_res && col < ncol_v) {
+        // Write a dummy value to the result tensor
+        // For example, just combining row and column indices
+        res[row * ncol_v + col] = row * 100 + col; // Example dummy operation
+    }
+}
+
+__global__ void supersimple_kernel(/*int64_t *res*/) {
+    if (threadIdx.x == 0 && blockIdx.x == 0) {
+        //res[0] = 12345;
+    }
+}
+
 
 
 // Implementation of the Compute function for SearchSortedKernel
@@ -10,12 +35,12 @@ void SearchSortedKernel<T>::Compute(OrtKernelContext* context) {
     Ort::KernelContext ctx(context);
     auto v_a = ctx.GetInput(0);
     auto v_v = ctx.GetInput(1);
-    auto v_side_left = ctx.GetInput(2);   
-
+    auto v_side_left = ctx.GetInput(2); 
+   
     const T* a_data = v_a.GetTensorData<T>();
     const T* v_data = v_v.GetTensorData<T>();
-    const T* side_left_data = v_side_left.GetTensorData<T>();
-
+    const bool* side_left_data = v_side_left.GetTensorData<bool>();
+    
     auto dimensions_a = v_a.GetTensorTypeAndShapeInfo().GetShape();
     auto dimensions_v = v_v.GetTensorTypeAndShapeInfo().GetShape();
     
@@ -42,8 +67,26 @@ void SearchSortedKernel<T>::Compute(OrtKernelContext* context) {
     }
 
     // Launch the CUDA kernel
-    bool side_left = *side_left_data; // Simplification: assuming side_left is a single bool value
-    searchsorted_kernel_float(output_data, (float*)a_data, (float*)v_data, nrow_res, nrow_a, nrow_v, ncol_a, ncol_v, side_left, blocks, threads);
+    bool side_left_bool;
+    cudaMemcpy(&side_left_bool, side_left_data, sizeof(bool), cudaMemcpyDeviceToHost);
+
+   // bool side_left_bool = *side_left_data; // Simplification: assuming side_left is a single bool value
+    searchsorted_kernel_float(output_data, a_data, v_data, nrow_res, nrow_a, nrow_v, ncol_a, ncol_v, side_left_bool, blocks, threads);
+        // Optional: Check for errors after kernel launch
+    cudaError_t error = cudaGetLastError();
+    if (error != cudaSuccess) {
+        // Handle error
+        std::cerr << "CUDA error in kernel launch: " << cudaGetErrorString(error) << std::endl;
+    }
+
+    // Optional: Synchronize device to wait for kernel completion and catch errors
+    error = cudaDeviceSynchronize();
+    if (error != cudaSuccess) {
+        // Handle error
+        std::cerr << "CUDA error on synchronize: " << cudaGetErrorString(error) << std::endl;
+    }
+
+   
 
 }
 

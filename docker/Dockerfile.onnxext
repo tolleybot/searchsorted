@@ -29,5 +29,7 @@ RUN git clone https://github.com/abseil/abseil-cpp.git && \
 # ENV BUILD_FLAVOR=RelWithDebInfo
 # ENV OSNAME=Linux
 
+RUN pip3 install torch torchvision torchaudio
+
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 ENV PATH=$PATH:/usr/local/include

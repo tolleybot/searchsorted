@@ -2,7 +2,7 @@
 
 template <typename scalar_t>
 __device__
-int eval(scalar_t val, scalar_t *a, int64_t row, int64_t col, int64_t ncol, bool side_left)
+int eval(scalar_t val, const scalar_t *a, int64_t row, int64_t col, int64_t ncol, bool side_left)
 {
     /* Evaluates whether a[row,col] < val <= a[row, col+1]*/
 
@@ -40,7 +40,7 @@ int eval(scalar_t val, scalar_t *a, int64_t row, int64_t col, int64_t ncol, bool
 
 template <typename scalar_t>
 __device__
-int binary_search(scalar_t *a, int64_t row, scalar_t val, int64_t ncol, bool side_left)
+int binary_search(const scalar_t *a, int64_t row, scalar_t val, int64_t ncol, bool side_left)
 {
   /* Look for the value `val` within row `row` of matrix `a`, which
   has `ncol` columns.
@@ -84,8 +84,8 @@ template <typename scalar_t>
 __global__
 void searchsorted_kernel(
   int64_t *res,
-  scalar_t *a,
-  scalar_t *v,
+  const scalar_t *a,
+  const scalar_t *v,
   int64_t nrow_res, int64_t nrow_a, int64_t nrow_v, int64_t ncol_a, int64_t ncol_v, bool side_left)
 {
     // get current row and column
@@ -109,8 +109,8 @@ void searchsorted_kernel(
 // Explicit instantiation of the wrapper function for float
 void searchsorted_kernel_float(
   int64_t *res,
-  float *a,
-  float *v,
+  const float *a,
+  const float *v,
   int64_t nrow_res, int64_t nrow_a, int64_t nrow_v, int64_t ncol_a, int64_t ncol_v, bool side_left,
   dim3 blocks, dim3 threads) {
     // Directly invoke the kernel with float type
